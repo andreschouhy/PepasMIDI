@@ -6,9 +6,9 @@ Similar a su proyecto hermano mayor Pepas, Pepas MIDI es un script de Python que
 Aún está en fase de desarrollo: si bien ya está desarrollada la mayoría de sus funciones finales, aún queda por desarrollar el modo de interactuar en vivo con el script.
 
 ## Mapa de botones
-- Notas musicales (para los canales de CV): 34 notas posibles se distribuyen a lo largo de las botones de letras y números de la siguiente manera:
-  - notas "blancas" (de un teclado musical tradicional) en las fila desde "Z" hasta "-" y desde "Q" hasta "P"
-  - notas "negras" (de un teclado musical tradicional) en las filas desde "A" hasta "Ñ" y desde "1" hasta "0" (excluyendo "A", "F", "K", "1", "4" y "8")
+- Notas musicales: 34 notas posibles se distribuyen a lo largo de las botones de letras y números de la siguiente manera:
+  - notas "blancas" (de un teclado musical tradicional) en las fila desde "Z" hasta "/" y desde "Q" hasta "P"
+  - notas "negras" (de un teclado musical tradicional) en las filas desde "A" hasta ";" y desde "1" hasta "0" (excluyendo "A", "F", "K", "1", "4" y "8")
 - " ' " (el botón a la izquierda del "1") alterna entre 2 modos de accionar notas:
   - uno en el que se accionan las notas que están siendo presionas
   - otro en el que se mantienen activas las notas que se presionaron desde que se presiona la primera nota hasta que ya no hay notas presionadas, luego de esto se reinicia el grupo de notas al presionar la primera de un nuevo grupo de notas.
