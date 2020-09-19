@@ -22,3 +22,4 @@ El resto de las variables por el momento se editan desde el script directamente.
 - Librerías externas:
   - python-rtmidi https://pypi.org/project/python-rtmidi/
   - keyboard https://pypi.org/project/keyboard/
+- Teclado en inglés (no es excluyente el idioma, porque se puede alterar el mapa de caracteres dentro del script)
