@@ -8,29 +8,30 @@ import rtmidi
 import keyboard
 import random
 
-bpm = 120.0
-stepsDiv = 2
-stepDuracion = 2.0
+bpm = 120.0 # tempo en BMP
+stepsDiv = 2 # cantidad de steps por beat
+stepDuracion = 2.0 # duracion de la nota relativa al beat
 escala = []
-probabilidad = 0.125
-cantVoces = 8
-octava = -2
-ampOct = 4
-stepsCant = 16
+probabilidad = 0.125 # probabilidad de ejecucion de nota, 0: nunca, 1: siempre
+cantVoces = 8 # cantidad de voces simultaneas
+octava = -2 # octava master inicial
+ampOct = 4 # amplitud de octavas, las voces se distribuyen a lo largo de esta cantidad de octavas
+stepsCant = 16 # cantidad de steps en las secuencias fijas
 secuencias = []
-secuenciar = False
+secuenciar = False # modo secuencia fija
 stepActual = 1
-velRange = (0,127)
-delay = 0.2 / cantVoces
-probMutacion = 0.3
+velRange = (0,127) # rango de variacion en la intensidad de ejecucion de las notas, valores aceptados 0-127
+delay = 0.2 / cantVoces # retraso relativo de tiempo entre cada voz, esto genera que 2 o mas notas simultaneas se ejecuten con una minima diferencia de tiempo
+probMutacion = 0.3 # probabilidad de mutacion de secuencias fijas, 0: no muta, 1: muta completamente
 
 holdMode = False
+controlando = False
 
 midiout = rtmidi.MidiOut()
 available_ports = midiout.get_ports()
 
 if available_ports:
-	midiout.open_port(0)
+	midiout.open_port(5)
 else:
 	midiout.open_virtual_port("Pepas MIDI")
 
@@ -93,21 +94,28 @@ def programarOff(nota):
 
 presionadas = []
 def presionando(key):
+        #print(key)
+        global controlando
         if key.name not in presionadas:
                 presionadas.append(key.name)
-                if mapKeyToMIDI(key):
+                if (mapKeyToMIDI(key) and controlando == False):
                         if ((holdMode == True) and (len(presionadas) == 1)):
                                 global escala
                                 escala.clear()
                         escala.append(key)
+                if key.name == "f3":
+                        controlando = True
 
 def soltando(key):
+        global controlando
         if key.name in presionadas:
                 presionadas.remove(key.name)
-                if mapKeyToMIDI(key):
+                if (mapKeyToMIDI(key) and controlando == False):
                         if not holdMode:
                                 for i in escala:
                                         if i.name == key.name: escala.remove(i)
+                if key.name == "f3":
+                        controlando = False
 
 def octavaSubir(key):
         global octava
