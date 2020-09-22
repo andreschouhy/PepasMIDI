@@ -2,7 +2,7 @@
 Secuenciador generativo de notas MIDI
 
 ## Introducción
-Similar a su proyecto hermano mayor Pepas (https://github.com/andreschouhy/Pepas), Pepas MIDI es un script de Python que envía mensajes MIDI para que cualquier dispositivo los convierta en sonido.
+Similar a su proyecto hermano mayor [Pepas](https://github.com/andreschouhy/Pepas), Pepas MIDI es un script de Python que envía mensajes MIDI para que cualquier dispositivo los convierta en sonido.
 Aún está en fase de desarrollo: si bien ya está desarrollada la mayoría de sus funciones finales, aún queda por desarrollar el modo de interactuar en vivo con el script.
 
 ## Mapa de botones
