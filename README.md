@@ -20,8 +20,8 @@ El resto de las variables por el momento se editan desde el script directamente.
 ## Requerimientos
 - Python 3
 - Librerías externas:
-  - python-rtmidi https://pypi.org/project/python-rtmidi/
-  - keyboard https://pypi.org/project/keyboard/
-  - windows-curses (sólo en Windows) https://pypi.org/project/windows-curses/
-- loopMIDI (sólo en Windows) https://www.tobias-erichsen.de/software/loopmidi.html. Acá hay un tutorial de cómo usarlo: https://github.com/AhmadMoussa/Python-Midi-Ableton/blob/master/Readme.md
+  - [python-rtmidi](https://pypi.org/project/python-rtmidi/)
+  - [keyboard](https://pypi.org/project/keyboard/)
+  - [windows-curses](https://pypi.org/project/windows-curses/) (sólo en Windows)
+- [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html)  (sólo en Windows). [Acá](https://github.com/AhmadMoussa/Python-Midi-Ableton/blob/master/Readme.md) hay un tutorial de cómo usarlo: 
 - Teclado en inglés (no es excluyente el idioma, porque se puede alterar el mapa de caracteres dentro del script)
