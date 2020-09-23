@@ -8,24 +8,29 @@ import rtmidi
 import keyboard
 import random
 
-bpm = 120.0 # tempo en BMP
+bpm = 160 # tempo en BMP
 stepsDiv = 2 # cantidad de steps por beat
-stepDuracion = 2.0 # duracion de la nota relativa al beat
+stepDuracion = 1.0 # duracion de la nota relativa al beat
 escala = []
-probabilidad = 0.125 # probabilidad de ejecucion de nota, 0: nunca, 1: siempre
+probabilidad = 1.0 # probabilidad de ejecucion de nota, 0: nunca, 1: siempre
 cantVoces = 8 # cantidad de voces simultaneas
 octava = -2 # octava master inicial
 ampOct = 4 # amplitud de octavas, las voces se distribuyen a lo largo de esta cantidad de octavas
-stepsCant = 16 # cantidad de steps en las secuencias fijas
+stepsCant = 4 # cantidad de steps en las secuencias fijas
 secuencias = []
 secuenciar = False # modo secuencia fija
 stepActual = 1
 velRange = (0,127) # rango de variacion en la intensidad de ejecucion de las notas, valores aceptados 0-127
-delay = 0.2 / cantVoces # retraso relativo de tiempo entre cada voz, esto genera que 2 o mas notas simultaneas se ejecuten con una minima diferencia de tiempo
+delay = 0.0 / cantVoces # retraso relativo de tiempo entre cada voz, esto genera que 2 o mas notas simultaneas se ejecuten con una minima diferencia de tiempo
 probMutacion = 0.3 # probabilidad de mutacion de secuencias fijas, 0: no muta, 1: muta completamente
 
 holdMode = False
 controlando = False
+controlCantVoces = False
+controlBPM = False
+proxCantVoces = cantVoces
+maxVoces = 10
+proxBPM = bpm
 
 midiout = rtmidi.MidiOut()
 available_ports = midiout.get_ports()
@@ -74,6 +79,31 @@ def mapKeyToMIDI(k):
                 }
         return dic.get(k.name)
 
+def mapKeyToNum(k):
+        dic = {
+                "1": 1.0,
+                "2": 2.0,
+                "3": 3.0,
+                "4": 4.0,
+                "5": 5.0,
+                "6": 6.0,
+                "7": 7.0,
+                "8": 8.0,
+                "9": 9.0,
+                "0": 10.0,
+                "q": 0.0000001, #no se por que no puedo poner 0.0, no parece hacer bien el return
+                "w": 0.1,
+                "e": 0.2,
+                "r": 0.3,
+                "t": 0.4,
+                "y": 0.5,
+                "u": 0.6,
+                "i": 0.7,
+                "o": 0.8,
+                "p": 0.9,
+                }
+        return dic.get(k.name)
+
 def noteOn(key):
         midiout.send_message([0x90, mapKeyToMIDI(key[0]) + key[1]*12, key[2]])
 
@@ -94,27 +124,41 @@ def programarOff(nota):
 
 presionadas = []
 def presionando(key):
-        #print(key)
-        global controlando
+        global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm
         if key.name not in presionadas:
                 presionadas.append(key.name)
-                if (mapKeyToMIDI(key) and controlando == False):
+                if mapKeyToMIDI(key) and controlando == False:
                         if ((holdMode == True) and (len(presionadas) == 1)):
                                 global escala
                                 escala.clear()
                         escala.append(key)
+                if mapKeyToNum(key) and controlando == True:
+                        if controlCantVoces == True: proxCantVoces = int(mapKeyToNum(key))
+                        if controlBPM == True: proxBPM.append(int(mapKeyToNum(key)%10))
+                if key.name == "f1":
+                        proxBPM = []
+                        controlBPM = True
+                        controlando = True
                 if key.name == "f3":
+                        controlCantVoces = True
                         controlando = True
 
 def soltando(key):
-        global controlando
+        global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm
         if key.name in presionadas:
                 presionadas.remove(key.name)
-                if (mapKeyToMIDI(key) and controlando == False):
+                if mapKeyToMIDI(key) and controlando == False:
                         if not holdMode:
                                 for i in escala:
                                         if i.name == key.name: escala.remove(i)
+                if key.name == "f1":
+                        s = sum(d * 10**i for i, d in enumerate(proxBPM[::-1]))
+                        if s > 0: bpm = s
+                        print(bpm)
+                        controlBPM = False
+                        controlando = False
                 if key.name == "f3":
+                        controlCantVoces = False
                         controlando = False
 
 def octavaSubir(key):
@@ -144,11 +188,10 @@ def toggleSecuencia(k):
                 resetearSecuencia(k)
 
 def resetearSecuencia(k):
-        global secuencia
-        global stepActual
+        global secuencia, stepActual
         stepActual = 0
         secuencias.clear()
-        for v in range(cantVoces):
+        for v in range(maxVoces):
                 secuencias.append(list())
                 for i in range(stepsCant):
                         if random.random() <= probabilidad: s = True
@@ -157,7 +200,7 @@ def resetearSecuencia(k):
 
 def mutar(step):
         if random.random() <= probMutacion:
-                for v in range(cantVoces):
+                for v in range(maxVoces):
                         if random.random() <= probabilidad: s = True
                         else: s = False
                         sec = secuencias[v]
@@ -203,6 +246,7 @@ while(corriendo==True):
                 if secuenciar: mutar(stepActual)
                 stepActual += 1
                 stepActual = stepActual % stepsCant
+                cantVoces = proxCantVoces
         time.sleep(60/bpm/stepsDiv)
         pass
 curses.flushinp()
