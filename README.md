@@ -44,5 +44,5 @@ Los parámetros más importantes son:
   - [python-rtmidi](https://pypi.org/project/python-rtmidi/)
   - [keyboard](https://pypi.org/project/keyboard/)
   - [windows-curses](https://pypi.org/project/windows-curses/) (sólo en Windows)
-- [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html)  (sólo en Windows). [Acá](https://github.com/AhmadMoussa/Python-Midi-Ableton/blob/master/Readme.md) hay un tutorial de cómo usarlo: 
+- [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html)  (sólo en Windows). [Acá](https://github.com/AhmadMoussa/Python-Midi-Ableton/blob/master/Readme.md) hay un tutorial de cómo usarlo
 - Teclado en inglés (no es excluyente el idioma, porque se puede alterar el mapa de caracteres dentro del script)
