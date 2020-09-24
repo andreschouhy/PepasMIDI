@@ -4,9 +4,12 @@ Secuenciador generativo de notas MIDI
 ## Introducción
 Similar a su proyecto hermano mayor [Pepas](https://github.com/andreschouhy/Pepas), Pepas MIDI es un script de Python que envía mensajes MIDI para que cualquier dispositivo los convierta en sonido.
 
+## Modus operandi
+Ejecutar el script de Python mediante línea de comandos. Requiere "sudo" en Mac OS.
+Luego de la bienvenida, uno activa un grupo de notas mediante el uso del teclado, a las que llamaremos "escala", y Pepas MIDI dispara aleatoriamente cualquiera de esas notas.
+
 ## Mapa de botones
 ###### No está soportado el teclado numérico por el momento. Siempre que se mencionan botones de números, se refiere a los que están sobre las letras.
-
 - Notas musicales: 34 notas posibles se distribuyen a lo largo de las botones de letras y números de la siguiente manera:
   - notas "blancas" (de un teclado musical tradicional) en las fila desde "Z" hasta "/" y desde "Q" hasta "P"
   - notas "negras" (de un teclado musical tradicional) en las filas desde "A" hasta ";" y desde "1" hasta "0" (excluyendo "A", "F", "K", "1", "4" y "8")
