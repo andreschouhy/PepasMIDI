@@ -8,6 +8,13 @@ Similar a su proyecto hermano mayor [Pepas](https://github.com/andreschouhy/Pepa
 Ejecutar el script de Python mediante línea de comandos. Requiere "sudo" en Mac OS.
 Luego del mensaje de bienvenida, uno activa un grupo de notas mediante el uso del teclado, a las que llamaremos "escala", y Pepas MIDI dispara aleatoriamente cualquiera de esas notas.
 Hay 2 modos de secuencias, uno de secuencia completamente aleatoria y otro de secuencias fijas (generadas aleatoriamente, bajo parámetros definidos por el usuario). Pepas MIDI posee también una funcionalidad para mutar levemente las secuencias fijas, para que no se repitan exactamente iguales por siempre. Su forma de operar es alterar un paso de la secuencia cada vez que se ejecuta, Pepas MIDI decide si alterarlo o no mediante una probabilidad, que por defecto esta en 0% pero el usuario puede aumentar esa probabilidad hasta 100%.
+Los parámetros más importantes son: 
+- La escala (el grupo de notas activadas)
+- La cantidad de notas de una escala (para el modo de secuencias fijas)
+- La cantidad de pasos de una secuencia (para el modo de secuencias fijas)
+- El tempo, configurable por BPM
+- La probabilidad de ejecutar una nota
+- La probabilidad de alterar un paso de la secuencia (para el modo de secuencias fijas)
 
 ## Mapa de botones
 ###### No está soportado el teclado numérico por el momento. Siempre que se mencionan botones de números, se refiere a los que están sobre las letras.
