@@ -16,11 +16,11 @@ Aún está en fase de desarrollo: si bien ya está desarrollada la mayoría de s
   - Hold On: se mantienen activas las notas que se presionaron desde que se presiona la primera nota hasta que ya no hay notas presionadas, luego de esto se reinicia el grupo de notas al presionar la primera de un nuevo grupo de notas.
 - "ESPACIO" alterna entre el modo de secuencias aleatorias y secuencias fijas
 - "BORRAR" resetea la secuencia (para el modo de secuencias fijas)
-- "F1" Tempo en BPM: mientras se presiona F1 entrar BPM usando los numeros, el cambio se efectiviza al soltar F1.
-- "F2" Probabilidad de ejecucion de nota, 0: nunca, 1: siempre. Botones 1 al 0 para asignar valores de 0.1 a 1.0 y botones Q a la P para asignar valores de 0.0 a 0.09.
-- "F3" Cantidad de voces simultaneas. Botones 1 al 0 para asignar valores de 1 a 10.
-- "F4"
-- "F5"
+- "F1" Tempo en BPM. Mientras se presiona F1 entrar BPM usando los numeros, el cambio se efectiviza al soltar F1.
+- "F2" Probabilidad de ejecucion de nota, 0: nunca, 1: siempre. Botones "1" al "0" para asignar valores de 0.1 a 1.0 y botones "Q" a la "P" para asignar valores de 0.0 a 0.09.
+- "F3" Cantidad de voces simultaneas. Botones "1" al "0" para asignar valores de 1 a 10.
+- "F4" Cantidad de steps por beat. Mientras se presiona F4 entrar cantidad usando los numeros, el cambio se efectiviza al soltar F4.
+- "F5" Duracion de la nota relativa a la duracion del step. Botones "1" al "0" para asignar valores de 1.0 a 10.0 y botones "Q" a la "P" para asignar valores de 0.0 a 0.9.
 - "F6"
 - "F7"
 - "F8"
