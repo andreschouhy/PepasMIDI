@@ -10,12 +10,21 @@ Aún está en fase de desarrollo: si bien ya está desarrollada la mayoría de s
   - notas "blancas" (de un teclado musical tradicional) en las fila desde "Z" hasta "/" y desde "Q" hasta "P"
   - notas "negras" (de un teclado musical tradicional) en las filas desde "A" hasta ";" y desde "1" hasta "0" (excluyendo "A", "F", "K", "1", "4" y "8")
 - " ' " (el botón a la izquierda del "1") alterna entre 2 modos de accionar notas:
-  - uno en el que se accionan las notas que están siendo presionas
-  - otro en el que se mantienen activas las notas que se presionaron desde que se presiona la primera nota hasta que ya no hay notas presionadas, luego de esto se reinicia el grupo de notas al presionar la primera de un nuevo grupo de notas.
+  - Hold Off: se accionan las notas que están siendo presionas
+  - Hold On: se mantienen activas las notas que se presionaron desde que se presiona la primera nota hasta que ya no hay notas presionadas, luego de esto se reinicia el grupo de notas al presionar la primera de un nuevo grupo de notas.
 - "ESPACIO" alterna entre el modo de secuencias aleatorias y secuencias fijas
 - "BORRAR" resetea la secuencia (para el modo de secuencias fijas)
-
-El resto de las variables por el momento se editan desde el script directamente.
+- "F1" Tempo en BPM: presionar F1 > entrar BPM usando los numeros > soltar F1. No está soportado el teclado numérico por el momento.
+- "F2" Probabilidad de ejecucion de nota, 0: nunca, 1: siempre. Botones 1 al 0 para asignar valores de 0.1 a 1.0 y botones Q a la P para asignar valores de 0.0 a 0.09.
+- "F3" Cantidad de voces simultaneas. Botones 1 al 0 para asignar valores de 1 a 10.
+- "F4"
+- "F5"
+- "F6"
+- "F7"
+- "F8"
+- "F9"
+- "F10"
+- (Bonus track) Debido a un descuido del programador, cuando estamos en modo hold on y ya esta definida la escala (es decir que presionamos varias notas y soltamos todo) podemos seguir agregando notas a la escala actual si lo hacemos manteniendo botones que no hagan nada, por ej.: SHIFT, CTRL, ALT, ENTER, etc.
 
 ## Requerimientos
 - Python 3
