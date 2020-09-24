@@ -21,11 +21,11 @@ Aún está en fase de desarrollo: si bien ya está desarrollada la mayoría de s
 - "F3" Cantidad de voces simultaneas. Botones "1" al "0" para asignar valores de 1 a 10.
 - "F4" Cantidad de steps por beat. Mientras se presiona F4 entrar cantidad usando los numeros, el cambio se efectiviza al soltar F4.
 - "F5" Duracion de la nota relativa a la duracion del step. Botones "1" al "0" para asignar valores de 1.0 a 10.0 y botones "Q" a la "P" para asignar valores de 0.0 a 0.9.
-- "F6"
-- "F7"
-- "F8"
-- "F9"
-- "F10"
+- "F6" Cantidad de steps en las secuencias fijas. Mientras se presiona F6 entrar cantidad usando los numeros, el cambio se efectiviza al soltar F6.
+- "F7" Probabilidad de mutacion de secuencias fijas, 0: no muta, 1: muta completamente. Botones "1" al "0" para asignar valores de 0.1 a 1.0 y botones "Q" a la "P" para asignar valores de 0.0 a 0.09.
+- "F8" Amplitud de octavas, las voces se distribuyen a lo largo de esta cantidad de octavas, valores aceptados 1-5. Botones "1" a "5".
+- "F9" Rango de variacion en la intensidad de ejecucion de las notas, valores aceptados 1-127. Botones "1" al "0" para asignar el valor máximo entre 1 y 127, botones "Q" a la "P" para asignar el valor mínimo entre 1 y 127.
+- "F10" Retraso relativo de tiempo entre cada voz, esto genera que 2 o mas notas simultaneas se ejecuten con una minima diferencia de tiempo. Botones "1" al "0" para asignar valores de 0.1 a 1.0 y botones "Q" a la "P" para asignar valores de 0.0 a 0.09.
 - (Bonus track) Debido a un descuido del programador, cuando estamos en modo hold on y ya esta definida la escala (es decir que presionamos varias notas y soltamos todo) podemos seguir agregando notas a la escala actual si lo hacemos manteniendo botones que no hagan nada, por ej.: SHIFT, CTRL, ALT, ENTER, etc.
 
 ## Requerimientos
