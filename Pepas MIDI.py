@@ -1,4 +1,12 @@
-print("Pepas MIDI v0.00.001")
+"""
+Pepas MIDI
+Secuenciador aleatorio de notas musicales
+Autor: Andres Chouhy
+"""
+
+# Por alguna razon, algunas notas quedan colgadas hasta que se las llama nuevamente, sucede al activar mas de una voz en simultaneo y mas de una octava de amplitud.
+
+print("Pepas MIDI v0.00.003")
 print("Cargando...")
 
 import curses
@@ -7,15 +15,16 @@ import threading
 import rtmidi
 import keyboard
 import random
+import math
 
 bpm = 160 # F1: tempo, en BMP
 probabilidad = 1.0 # F2: probabilidad de ejecucion de nota, 0: nunca, 1: siempre
 cantVoces = 1 # F3: cantidad de voces simultaneas
-stepsDiv = 2 # F4: cantidad de steps por beat
-stepDuracion = 1.0 # F5: duracion de la nota relativa al beat
+stepsDiv = 1 # F4: cantidad de steps por beat
+stepDuracion = 1.0 # F5: duracion de la nota relativa a la duracion del step
 stepsCant = 4 # F6: cantidad de steps en las secuencias fijas
 probMutacion = 0.0 # F7: probabilidad de mutacion de secuencias fijas, 0: no muta, 1: muta completamente
-ampOct = 0 # F8: amplitud de octavas, las voces se distribuyen a lo largo de esta cantidad de octavas, valores aceptados 0-5
+ampOct = 0 # F8: amplitud de octavas, las voces se distribuyen a lo largo de esta cantidad de octavas, valores aceptados 1-5
 velRange = (127,127) # F9: rango de variacion en la intensidad de ejecucion de las notas, valores aceptados 1-127
 delay = 0.0 # F10: retraso relativo de tiempo entre cada voz, esto genera que 2 o mas notas simultaneas se ejecuten con una minima diferencia de tiempo
 secuenciar = False # BARRA ESPACIADORA: modo secuencia fija
@@ -41,6 +50,9 @@ controlAmpOct = False
 proxAmpOct = ampOct
 controlVelRange = False
 controlDelay = False
+play = False
+start = False
+clockDiv = 24.0
 
 midiout = rtmidi.MidiOut()
 available_ports = midiout.get_ports()
@@ -121,7 +133,11 @@ def noteOff(key):
         midiout.send_message([0x80, mapKeyToMIDI(key[0]) + key[1]*12, key[2]])
 
 def programarOn(nota):
+        global notasAApagar
         noteOn(nota)
+        notasAApagar.append(nota)
+        t = threading.Timer(60/bpm/stepsDiv*stepDuracion + d, programarOff, [nota])
+        t.start()
 
 notasAApagar = []
 def programarOff(nota):
@@ -136,10 +152,8 @@ def translate(value, leftMin, leftMax, rightMin, rightMax):
     # Figure out how 'wide' each range is
     leftSpan = leftMax - leftMin
     rightSpan = rightMax - rightMin
-
     # Convert the left range into a 0-1 range (float)
     valueScaled = float(value - leftMin) / float(leftSpan)
-
     # Convert the 0-1 range into a value in the right range.
     return rightMin + (valueScaled * rightSpan)
 
@@ -157,7 +171,11 @@ def presionando(key):
                         if controlBPM == True: proxBPM.append(int(mapKeyToNum(key)%10))
                         if controlProb == True: probabilidad = mapKeyToNum(key)/10.0
                         if controlCantVoces == True: proxCantVoces = int(mapKeyToNum(key))
-                        if controlStepsDiv == True: stepsDiv = mapKeyToNum(key)
+                        if controlStepsDiv == True:
+                                if mapKeyToNum(key) >= 1.0:
+                                        stepsDiv = mapKeyToNum(key)
+                                else:
+                                        stepsDiv = 1.0/((mapKeyToNum(key)+0.1)*10.0)
                         if controlStepsDur == True: stepDuracion = mapKeyToNum(key)
                         if controlStepsCant == True: proxStepsCant.append(int(mapKeyToNum(key)%10))
                         if controlProbMut == True: probMutacion = mapKeyToNum(key)/10.0
@@ -210,7 +228,7 @@ def presionando(key):
                         controlando = True
 
 def soltando(key):
-        global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm, controlProb, controlStepsDiv, controlStepsCant, proxStepsCant, stepsCant, controlProbMut, controlAmpOct, controlVelRange, controlDelay
+        global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm, controlProb, controlStepsDiv, controlStepsDur, controlStepsCant, proxStepsCant, stepsCant, controlProbMut, controlAmpOct, controlVelRange, controlDelay
         if key.name in presionadas:
                 presionadas.remove(key.name)
                 if mapKeyToMIDI(key) and controlando == False:
@@ -304,6 +322,15 @@ def mutar(step):
                         sec = secuencias[v]
                         sec[step] = ((random.randint(0, 256)), s, random.randint(velRange[0],velRange[1]))
 
+def startStopClock(k):
+        global start, play
+        if play == False:
+                start = True
+                play = True
+        else:
+                midiout.send_message([252])
+                play = False
+
 keyboard.on_press(presionando, suppress=False)
 keyboard.on_release(soltando, suppress=True)
 keyboard.on_press_key('esc', salir, suppress=True)
@@ -312,42 +339,50 @@ keyboard.on_press_key('down', octavaBajar, suppress=True)
 keyboard.on_press_key('`', toggleHold, suppress=True)
 keyboard.on_press_key('space', toggleSecuencia, suppress=True)
 keyboard.on_press_key('backspace', resetearSecuencia, suppress=True)
+keyboard.on_press_key('enter', startStopClock, suppress=True)
 
 print("Arrancamo!")
 stdscr = curses.initscr()
 curses.noecho()
 curses.cbreak()
 corriendo=True
+tiempo = 0
+tiempoTemp = 0
+tick = 0
 while(corriendo==True):
         cantVoces = proxCantVoces
         ampOct = proxAmpOct
-        if len(escala) > 0:
-                for i in range(cantVoces):
-                        if secuenciar:
-                                s = secuencias[i]
-                                if s[stepActual][1] == True:
-                                        n = s[stepActual][0]
-                                        nota = (escala[n % len(escala)], octava + int(ampOct / cantVoces * i), s[stepActual][2])
-                                        d = 60/bpm/stepsDiv*delay/cantVoces*i
-                                        t = threading.Timer(d, programarOn, [nota])
-                                        t.start()
-                                        notasAApagar.append(nota)
-                                        t = threading.Timer(60/bpm/stepsDiv*stepDuracion + d, programarOff, [nota])
-                                        t.start()
-                        else:
-                                if random.random() <= probabilidad:
-                                        nota = (escala[random.randint(0,len(escala)-1)], octava  + int(ampOct / cantVoces * i), random.randint(velRange[0],velRange[1]))
-                                        d = 60/bpm/stepsDiv*delay/cantVoces*i
-                                        t = threading.Timer(d, programarOn, [nota])
-                                        t.start()
-                                        notasAApagar.append(nota)
-                                        t = threading.Timer(60/bpm/stepsDiv*stepDuracion + d, programarOff, [nota])
-                                        t.start()
-                if secuenciar: mutar(stepActual)
-                stepActual += 1
-                stepActual = stepActual % stepsCant
-        time.sleep(60/bpm/stepsDiv)
-        pass
+        tiempoTemp = tiempo
+        tiempo = time.time() % (60/bpm/clockDiv)
+        if tiempo < tiempoTemp:
+                if len(escala) > 0 and tick == 0:
+                        for i in range(cantVoces):
+                                if secuenciar:
+                                        s = secuencias[i]
+                                        if s[stepActual][1] == True:
+                                                n = s[stepActual][0]
+                                                nota = (escala[n % len(escala)], octava + int(ampOct / cantVoces * i), s[stepActual][2])
+                                                d = 60/bpm/stepsDiv*delay/cantVoces*i
+                                                t = threading.Timer(d, programarOn, [nota])
+                                                t.start()
+                                else:
+                                        if random.random() <= probabilidad:
+                                                nota = (escala[random.randint(0,len(escala)-1)], octava  + int(ampOct / cantVoces * i), random.randint(velRange[0],velRange[1]))
+                                                d = 60/bpm/stepsDiv*delay/cantVoces*i
+                                                t = threading.Timer(d, programarOn, [nota])
+                                                t.start()
+                        if secuenciar: mutar(stepActual)
+                        stepActual += 1
+                        stepActual = stepActual % stepsCant
+                        if play == True:
+                                if start == True:
+                                        midiout.send_message([250])
+                                        start = False
+                if play == True: midiout.send_message([248])
+                tick = tick+1
+                tick = tick%(clockDiv/stepsDiv)
+                tick = math.floor(tick)
+midiout.send_message([252])
 curses.flushinp()
 curses.nocbreak()
 curses.echo()
