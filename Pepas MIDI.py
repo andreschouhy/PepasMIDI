@@ -16,6 +16,7 @@ import rtmidi
 import keyboard
 import random
 import math
+import pathlib
 
 bpm = 160 # F1: tempo, en BMP
 probabilidad = 1.0 # F2: probabilidad de ejecucion de nota, 0: nunca, 1: siempre
@@ -50,9 +51,11 @@ controlAmpOct = False
 proxAmpOct = ampOct
 controlVelRange = False
 controlDelay = False
+controlGuardarPreset = False
 play = False
 start = False
 clockDiv = 24.0
+presetPath = str(pathlib.Path(__file__).parent.absolute()) + "/presets.txt"
 
 midiout = rtmidi.MidiOut()
 available_ports = midiout.get_ports()
@@ -149,17 +152,52 @@ def programarOff(nota):
                 noteOff(nota)
 
 def translate(value, leftMin, leftMax, rightMin, rightMax):
-    # Figure out how 'wide' each range is
     leftSpan = leftMax - leftMin
     rightSpan = rightMax - rightMin
-    # Convert the left range into a 0-1 range (float)
     valueScaled = float(value - leftMin) / float(leftSpan)
-    # Convert the 0-1 range into a value in the right range.
     return rightMin + (valueScaled * rightSpan)
+
+def guardarPreset(_i):
+        global presetPath, escala, secuencias, bpm, probabilidad, cantVoces, stepsDiv, stepDuracion, stepsCant, probMutacion, ampOct, velRange, delay
+        try: presetFile = open(presetPath, "r")
+        except: presetFile = open(presetPath, "w")
+        try: lineas = presetFile.readlines()
+        except: lineas = [""]
+        presetFile.close()
+        
+        if _i >= 1: i = int(_i)
+        else: i = int(((_i+.1)*10)+10)
+        escalaEstado = False
+        secuenciasEstado = False
+        if len(escala) > 0: escalaEstado = True
+        if len(secuencias) > 0: secuenciasEstado = True
+        p = {"preset": i,
+             "escala": (escalaEstado, escala),
+             "secuencias": (secuenciasEstado, secuencias),
+             "tempo": (True, bpm),
+             "probabilidad": (True, probabilidad),
+             "cantVoces": (True, cantVoces),
+             "stepsDiv": (True, stepsDiv),
+             "stepDuracion": (True, stepDuracion),
+             "stepsCant": (True, stepsCant),
+             "probMutacion": (True, probMutacion),
+             "ampOct": (True, ampOct),
+             "velRange": (True, velRange),
+             "delay": (True, delay)}
+        print("pimba")
+        p = str(p)
+        if len(lineas) <= i: lineas[-1] += "\n"
+        while len(lineas) <= i-1: lineas.append("\n")
+        if len(lineas) > i: p += "\n"
+        lineas[i-1] = p
+        presetFile = open(presetPath, "w")
+        presetFile.writelines(lineas)
+        presetFile.close()
 
 presionadas = []
 def presionando(key):
-        global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm, controlProb, probabilidad, controlStepsDiv, stepsDiv, controlStepsDur, stepDuracion, controlStepsCant, stepsCant, proxStepsCant, controlProbMut, probMutacion, controlAmpOct, proxAmpOct, controlVelRange, velRange, controlDelay, delay
+        global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm, controlProb, probabilidad, controlStepsDiv, stepsDiv, controlStepsDur, stepDuracion, controlStepsCant, stepsCant, proxStepsCant, controlProbMut, probMutacion, controlAmpOct, proxAmpOct, controlVelRange, velRange, controlDelay, delay, controlGuardarPreset
+        global presetPath
         if key.name not in presionadas:
                 presionadas.append(key.name)
                 if mapKeyToMIDI(key) is not None and controlando == False:
@@ -188,6 +226,7 @@ def presionando(key):
                                         v = int(translate(mapKeyToNum(key), 1.0, 10.0, 1, 127))
                                         velRange = (min(velRange[0], v), v)
                         if controlDelay == True: delay = mapKeyToNum(key)/10.0
+                        if controlGuardarPreset: guardarPreset(mapKeyToNum(key))
                 if key.name == "f1":
                         proxBPM = []
                         controlBPM = True
@@ -221,14 +260,14 @@ def presionando(key):
                         controlDelay = True
                         controlando = True
                 if key.name == "f11":
-                        # aun sin uso
+                        controlGuardarPreset = True
                         controlando = True
                 if key.name == "f12":
                         # aun sin uso
                         controlando = True
 
 def soltando(key):
-        global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm, controlProb, controlStepsDiv, controlStepsDur, controlStepsCant, proxStepsCant, stepsCant, controlProbMut, controlAmpOct, controlVelRange, controlDelay
+        global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm, controlProb, controlStepsDiv, controlStepsDur, controlStepsCant, proxStepsCant, stepsCant, controlProbMut, controlAmpOct, controlVelRange, controlDelay, controlGuardarPreset
         if key.name in presionadas:
                 presionadas.remove(key.name)
                 if mapKeyToMIDI(key) and controlando == False:
@@ -271,7 +310,7 @@ def soltando(key):
                         controlDelay = False
                         controlando = False
                 if key.name == "f11":
-                        # aun sin uso
+                        controlGuardarPreset = False
                         controlando = False
                 if key.name == "f12":
                         # aun sin uso
