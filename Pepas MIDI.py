@@ -52,6 +52,7 @@ proxAmpOct = ampOct
 controlVelRange = False
 controlDelay = False
 controlGuardarPreset = False
+controlCargarPreset = False
 play = False
 start = False
 clockDiv = 24.0
@@ -102,7 +103,7 @@ def mapKeyToMIDI(k):
                 "0": 87,
                 "p": 88
                 }
-        return dic.get(k.name, None)
+        return dic.get(k, None)
 
 def mapKeyToNum(k):
         dic = {
@@ -167,6 +168,7 @@ def guardarPreset(_i):
         
         if _i >= 1: i = int(_i)
         else: i = int(((_i+.1)*10)+10)
+        
         escalaEstado = False
         secuenciasEstado = False
         if len(escala) > 0: escalaEstado = True
@@ -184,7 +186,6 @@ def guardarPreset(_i):
              "ampOct": (True, ampOct),
              "velRange": (True, velRange),
              "delay": (True, delay)}
-        print("pimba")
         p = str(p)
         if len(lineas) <= i: lineas[-1] += "\n"
         while len(lineas) <= i-1: lineas.append("\n")
@@ -194,17 +195,49 @@ def guardarPreset(_i):
         presetFile.writelines(lineas)
         presetFile.close()
 
+def cargarPreset(_i):
+        global presetPath, escala, secuencias, bpm, probabilidad, cantVoces, stepsDiv, stepDuracion, stepsCant, probMutacion, ampOct, velRange, delay
+        try: presetFile = open(presetPath, "r")
+        except:
+                print("Archivo de presets inexistente")
+                return
+        lineas = presetFile.readlines()
+        presetFile.close()
+
+        if _i >= 1: i = int(_i)
+        else: i = int(((_i+.1)*10)+10)
+
+        if len(lineas) > i:
+                p = eval(lineas[i-1])
+                """try: p = eval(lineas[i-1])
+                except:
+                        print("Preset invalido")
+                        return"""
+        else:
+                print("Preset inexistente")
+                return
+
+        if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
+        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
+        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
+        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
+        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
+        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
+        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
+        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
+        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
+        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
+
 presionadas = []
 def presionando(key):
-        global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm, controlProb, probabilidad, controlStepsDiv, stepsDiv, controlStepsDur, stepDuracion, controlStepsCant, stepsCant, proxStepsCant, controlProbMut, probMutacion, controlAmpOct, proxAmpOct, controlVelRange, velRange, controlDelay, delay, controlGuardarPreset
-        global presetPath
+        global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm, controlProb, probabilidad, controlStepsDiv, stepsDiv, controlStepsDur, stepDuracion, controlStepsCant, stepsCant, proxStepsCant, controlProbMut, probMutacion, controlAmpOct, proxAmpOct, controlVelRange, velRange, controlDelay, delay, controlGuardarPreset, controlCargarPreset
         if key.name not in presionadas:
                 presionadas.append(key.name)
-                if mapKeyToMIDI(key) is not None and controlando == False:
+                if mapKeyToMIDI(key.name) is not None and controlando == False:
                         if ((holdMode == True) and (len(presionadas) == 1)):
                                 global escala
                                 escala.clear()
-                        escala.append(key)
+                        escala.append(key.name)
                 if mapKeyToNum(key) is not None and controlando == True:
                         if controlBPM == True: proxBPM.append(int(mapKeyToNum(key)%10))
                         if controlProb == True: probabilidad = mapKeyToNum(key)/10.0
@@ -227,6 +260,7 @@ def presionando(key):
                                         velRange = (min(velRange[0], v), v)
                         if controlDelay == True: delay = mapKeyToNum(key)/10.0
                         if controlGuardarPreset: guardarPreset(mapKeyToNum(key))
+                        if controlCargarPreset: cargarPreset(mapKeyToNum(key))
                 if key.name == "f1":
                         proxBPM = []
                         controlBPM = True
@@ -263,17 +297,17 @@ def presionando(key):
                         controlGuardarPreset = True
                         controlando = True
                 if key.name == "f12":
-                        # aun sin uso
+                        controlCargarPreset = True
                         controlando = True
 
 def soltando(key):
-        global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm, controlProb, controlStepsDiv, controlStepsDur, controlStepsCant, proxStepsCant, stepsCant, controlProbMut, controlAmpOct, controlVelRange, controlDelay, controlGuardarPreset
+        global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm, controlProb, controlStepsDiv, controlStepsDur, controlStepsCant, proxStepsCant, stepsCant, controlProbMut, controlAmpOct, controlVelRange, controlDelay, controlGuardarPreset, controlCargarPreset
         if key.name in presionadas:
                 presionadas.remove(key.name)
-                if mapKeyToMIDI(key) and controlando == False:
+                if mapKeyToMIDI(key.name) and controlando == False:
                         if not holdMode:
                                 for i in escala:
-                                        if i.name == key.name: escala.remove(i)
+                                        if i.name == key: escala.remove(i)
                 if key.name == "f1":
                         b = sum(d * 10**i for i, d in enumerate(proxBPM[::-1]))
                         if b > 0: bpm = b
@@ -313,7 +347,7 @@ def soltando(key):
                         controlGuardarPreset = False
                         controlando = False
                 if key.name == "f12":
-                        # aun sin uso
+                        controlCargarPreset = False
                         controlando = False
 
 def octavaSubir(key):
