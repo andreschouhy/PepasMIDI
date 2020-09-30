@@ -196,7 +196,7 @@ def guardarPreset(_i):
         presetFile.close()
 
 def cargarPreset(_i):
-        global presetPath, escala, secuencias, bpm, probabilidad, cantVoces, stepsDiv, stepDuracion, stepsCant, probMutacion, ampOct, velRange, delay
+        global presetPath, escala, secuencias, bpm, probabilidad, cantVoces, stepsDiv, stepDuracion, stepsCant, probMutacion, ampOct, velRange, delay, proxCantVoces, proxStepsCant, proxAmpOct
         try: presetFile = open(presetPath, "r")
         except:
                 print("Archivo de presets inexistente")
@@ -208,25 +208,26 @@ def cargarPreset(_i):
         else: i = int(((_i+.1)*10)+10)
 
         if len(lineas) > i:
-                p = eval(lineas[i-1])
-                """try: p = eval(lineas[i-1])
+                try: p = eval(lineas[i-1])
                 except:
                         print("Preset invalido")
-                        return"""
+                        return
         else:
                 print("Preset inexistente")
                 return
 
+        if p.get("escala")[0] == True: escala = p.get("escala")[1]
+        if p.get("secuencias")[0] == True: secuencias = p.get("secuencias")[1]
         if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
-        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
-        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
-        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
-        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
-        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
-        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
-        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
-        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
-        #if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
+        if p.get("probabilidad")[0] == True: probabilidad = p.get("probabilidad")[1]
+        if p.get("cantVoces")[0] == True: proxCantVoces = p.get("cantVoces")[1]
+        if p.get("stepsDiv")[0] == True: stepsDiv = p.get("stepsDiv")[1]
+        if p.get("stepDuracion")[0] == True: stepDuracion = p.get("stepDuracion")[1]
+        if p.get("stepsCant")[0] == True: stepsCant = p.get("stepsCant")[1]
+        if p.get("probMutacion")[0] == True: probMutacion = p.get("probMutacion")[1]
+        if p.get("ampOct")[0] == True: proxAmpOct = p.get("ampOct")[1]
+        if p.get("velRange")[0] == True: velRange = p.get("velRange")[1]
+        if p.get("delay")[0] == True: delay = p.get("delay")[1]
 
 presionadas = []
 def presionando(key):
@@ -307,7 +308,7 @@ def soltando(key):
                 if mapKeyToMIDI(key.name) and controlando == False:
                         if not holdMode:
                                 for i in escala:
-                                        if i.name == key: escala.remove(i)
+                                        if i == key.name: escala.remove(key.name)
                 if key.name == "f1":
                         b = sum(d * 10**i for i, d in enumerate(proxBPM[::-1]))
                         if b > 0: bpm = b
@@ -328,7 +329,6 @@ def soltando(key):
                 if key.name == "f6":
                         s = sum(d * 10**i for i, d in enumerate(proxStepsCant[::-1]))
                         if s > 0: stepsCant = s
-                        resetearSecuencia(None)
                         controlStepsCant = False
                         controlando = False
                 if key.name == "f7":
@@ -373,8 +373,8 @@ def toggleHold(k):
 def toggleSecuencia(k):
         global secuenciar
         secuenciar = not secuenciar
-        if secuenciar == True:
-                resetearSecuencia(k)
+        """if secuenciar == True:
+                resetearSecuencia(k)"""
 
 def resetearSecuencia(k):
         global secuencia, stepActual
@@ -393,7 +393,7 @@ def mutar(step):
                         if random.random() <= probabilidad: s = True
                         else: s = False
                         sec = secuencias[v]
-                        sec[step] = ((random.randint(0, 256)), s, random.randint(velRange[0],velRange[1]))
+                        sec[step%len(sec)] = ((random.randint(0, 256)), s, random.randint(velRange[0],velRange[1]))
 
 def startStopClock(k):
         global start, play
@@ -422,6 +422,8 @@ corriendo=True
 tiempo = 0
 tiempoTemp = 0
 tick = 0
+resetearSecuencia(None)
+
 while(corriendo==True):
         cantVoces = proxCantVoces
         ampOct = proxAmpOct
@@ -431,10 +433,10 @@ while(corriendo==True):
                 if len(escala) > 0 and tick == 0:
                         for i in range(cantVoces):
                                 if secuenciar:
-                                        s = secuencias[i]
-                                        if s[stepActual][1] == True:
-                                                n = s[stepActual][0]
-                                                nota = (escala[n % len(escala)], octava + int(ampOct / cantVoces * i), s[stepActual][2])
+                                        s = secuencias[i%len(secuencias)]
+                                        if s[stepActual%len(s)][1] == True:
+                                                n = s[stepActual%len(s)][0]
+                                                nota = (escala[n % len(escala)], octava + int(ampOct / cantVoces * i), s[stepActual%len(s)][2])
                                                 d = 60/bpm/stepsDiv*delay/cantVoces*i
                                                 t = threading.Timer(d, programarOn, [nota])
                                                 t.start()
