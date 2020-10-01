@@ -6,7 +6,7 @@ Autor: Andres Chouhy
 
 # Por alguna razon, algunas notas quedan colgadas hasta que se las llama nuevamente, sucede al activar mas de una voz en simultaneo y mas de una octava de amplitud.
 
-print("Pepas MIDI v0.00.003")
+print("Pepas MIDI v0.00.005")
 print("Cargando...")
 
 import curses
@@ -57,6 +57,7 @@ play = False
 start = False
 clockDiv = 24.0
 presetPath = str(pathlib.Path(__file__).parent.absolute()) + "/presets.txt"
+presetActual = 1
 
 midiout = rtmidi.MidiOut()
 available_ports = midiout.get_ports()
@@ -159,7 +160,8 @@ def translate(value, leftMin, leftMax, rightMin, rightMax):
     return rightMin + (valueScaled * rightSpan)
 
 def guardarPreset(_i):
-        global presetPath, escala, secuencias, bpm, probabilidad, cantVoces, stepsDiv, stepDuracion, stepsCant, probMutacion, ampOct, velRange, delay
+        global presetPath, escala, secuencias, bpm, probabilidad, cantVoces, stepsDiv, stepDuracion, stepsCant, probMutacion, ampOct, velRange, delay, presetActual
+
         try: presetFile = open(presetPath, "r")
         except: presetFile = open(presetPath, "w")
         try: lineas = presetFile.readlines()
@@ -182,10 +184,13 @@ def guardarPreset(_i):
              "stepsDiv": (True, stepsDiv),
              "stepDuracion": (True, stepDuracion),
              "stepsCant": (True, stepsCant),
-             "probMutacion": (True, probMutacion),
+             "probMutacion": (False, probMutacion), # false por defecto, te vuelve medio loco si este valor se propaga en todos los presets
              "ampOct": (True, ampOct),
              "velRange": (True, velRange),
              "delay": (True, delay)}
+
+        presetActual = i
+
         p = str(p)
         if len(lineas) <= i: lineas[-1] += "\n"
         while len(lineas) <= i-1: lineas.append("\n")
@@ -196,7 +201,8 @@ def guardarPreset(_i):
         presetFile.close()
 
 def cargarPreset(_i):
-        global presetPath, escala, secuencias, bpm, probabilidad, cantVoces, stepsDiv, stepDuracion, stepsCant, probMutacion, ampOct, velRange, delay, proxCantVoces, proxStepsCant, proxAmpOct
+        global presetPath, escala, secuencias, bpm, probabilidad, cantVoces, stepsDiv, stepDuracion, stepsCant, probMutacion, ampOct, velRange, delay, proxCantVoces, proxStepsCant, proxAmpOct, presetActual
+
         try: presetFile = open(presetPath, "r")
         except:
                 print("Archivo de presets inexistente")
@@ -216,6 +222,8 @@ def cargarPreset(_i):
                 print("Preset inexistente")
                 return
 
+        presetActual = i
+
         if p.get("escala")[0] == True: escala = p.get("escala")[1]
         if p.get("secuencias")[0] == True: secuencias = p.get("secuencias")[1]
         if p.get("tempo")[0] == True: bpm = p.get("tempo")[1]
@@ -228,6 +236,49 @@ def cargarPreset(_i):
         if p.get("ampOct")[0] == True: proxAmpOct = p.get("ampOct")[1]
         if p.get("velRange")[0] == True: velRange = p.get("velRange")[1]
         if p.get("delay")[0] == True: delay = p.get("delay")[1]
+
+def alternarControlesPreset(k):
+        global presetPath, escala, secuencias, bpm, probabilidad, cantVoces, stepsDiv, stepDuracion, stepsCant, probMutacion, ampOct, velRange, delay, proxCantVoces, proxStepsCant, proxAmpOct, presetActual
+        try: presetFile = open(presetPath, "r")
+        except:
+                print("Archivo de presets inexistente")
+                return
+        lineas = presetFile.readlines()
+        presetFile.close()
+
+        if presetActual >= 1: i = int(presetActual)
+        else: i = int(((presetActual+.1)*10)+10)
+
+        if len(lineas) > i:
+                try: l = eval(lineas[i-1])
+                except:
+                        print("Preset invalido")
+                        return
+        else:
+                print("Preset inexistente")
+                return
+        
+        #if k == "": l["escala"] = (not l.get("escala")[0], l.get("escala")[1]) #revisar si este metodo es el mejor para asignar un valor en un tuple
+        #if k == "": l["secuencias"] = (not l.get("secuencias")[0], l.get("secuencias")[1])
+        if k == "f1": l["tempo"] = (not l.get("tempo")[0], l.get("tempo")[1])
+        if k == "f2": l["probabilidad"] = (not l.get("probabilidad")[0], l.get("probabilidad")[1])
+        if k == "f3": l["cantVoces"] = (not l.get("cantVoces")[0], l.get("cantVoces")[1])
+        if k == "f4": l["stepsDiv"] = (not l.get("stepsDiv")[0], l.get("stepsDiv")[1])
+        if k == "f5": l["stepDuracion"] = (not l.get("stepDuracion")[0], l.get("stepDuracion")[1])
+        if k == "f6": l["stepsCant"] = (not l.get("stepsCant")[0], l.get("stepsCant")[1])
+        if k == "f7": l["probMutacion"] = (not l.get("probMutacion")[0], l.get("probMutacion")[1])
+        if k == "f8": l["ampOct"] = (not l.get("ampOct")[0], l.get("ampOct")[1])
+        if k == "f9": l["velRange"] = (not l.get("velRange")[0], l.get("velRange")[1])
+        if k == "f10": l["delay"] = (not l.get("delay")[0], l.get("delay")[1])
+
+        l = str(l)
+        if len(lineas) <= i: lineas[-1] += "\n"
+        while len(lineas) <= i-1: lineas.append("\n")
+        if len(lineas) > i: l += "\n"
+        lineas[i-1] = l
+        presetFile = open(presetPath, "w")
+        presetFile.writelines(lineas)
+        presetFile.close()
 
 presionadas = []
 def presionando(key):
@@ -266,34 +317,44 @@ def presionando(key):
                         proxBPM = []
                         controlBPM = True
                         controlando = True
+                        if controlGuardarPreset: alternarControlesPreset(key.name)
                 if key.name == "f2":
                         controlProb = True
                         controlando = True
+                        if controlGuardarPreset: alternarControlesPreset(key.name)
                 if key.name == "f3":
                         controlCantVoces = True
                         controlando = True
+                        if controlGuardarPreset: alternarControlesPreset(key.name)
                 if key.name == "f4":
                         controlStepsDiv = True
                         controlando = True
+                        if controlGuardarPreset: alternarControlesPreset(key.name)
                 if key.name == "f5":
                         controlStepsDur = True
                         controlando = True
+                        if controlGuardarPreset: alternarControlesPreset(key.name)
                 if key.name == "f6":
                         proxStepsCant = []
                         controlStepsCant = True
                         controlando = True
+                        if controlGuardarPreset: alternarControlesPreset(key.name)
                 if key.name == "f7":
                         controlProbMut = True
                         controlando = True
+                        if controlGuardarPreset: alternarControlesPreset(key.name)
                 if key.name == "f8":
                         controlAmpOct = True
                         controlando = True
+                        if controlGuardarPreset: alternarControlesPreset(key.name)
                 if key.name == "f9":
                         controlVelRange = True
                         controlando = True
+                        if controlGuardarPreset: alternarControlesPreset(key.name)
                 if key.name == "f10":
                         controlDelay = True
                         controlando = True
+                        if controlGuardarPreset: alternarControlesPreset(key.name)
                 if key.name == "f11":
                         controlGuardarPreset = True
                         controlando = True
@@ -377,7 +438,7 @@ def toggleSecuencia(k):
                 resetearSecuencia(k)"""
 
 def resetearSecuencia(k):
-        global secuencia, stepActual
+        global secuencias, stepActual
         stepActual = 0
         secuencias.clear()
         for v in range(maxVoces):
