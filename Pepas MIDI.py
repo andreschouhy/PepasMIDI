@@ -31,6 +31,7 @@ delay = 0.0 # F10: retraso relativo de tiempo entre cada voz, esto genera que 2 
 secuenciar = False # BARRA ESPACIADORA: modo secuencia fija
 octava = -2 # FLECHAS ARRIBA Y ABAJO: octava master
 
+notasAApagar = []
 escala = []
 secuencias = []
 stepActual = 1
@@ -139,19 +140,27 @@ def noteOff(key):
 
 def programarOn(nota):
         global notasAApagar
-        noteOn(nota)
-        notasAApagar.append(nota)
-        t = threading.Timer(60/bpm/stepsDiv*stepDuracion + d, programarOff, [nota])
+        
+        #noteOn(nota)
+        midiout.send_message([0x90, mapKeyToMIDI(nota[0]) + nota[1]*12, nota[2]])
+        
+        n = mapKeyToMIDI(nota[0]) + nota[1]*12
+        #notasAApagar.append(n)
+        t = threading.Timer(60/bpm/stepsDiv*stepDuracion + d, programarOff, [n])
         t.start()
 
-notasAApagar = []
-def programarOff(nota):
+def programarOff(n):
+        global notasAApagar
+        
+        notasAApagar.append(n)
+        
         for i,val in enumerate(notasAApagar):
-                if val[0] == nota[0]:
+                if val == n:
                         del notasAApagar[i]
-                        break
+                        return
         if notasAApagar.count(nota) == 0:
-                noteOff(nota)
+                #noteOff(nota)
+                midiout.send_message([0x80, n, 127])
 
 def translate(value, leftMin, leftMax, rightMin, rightMax):
     leftSpan = leftMax - leftMin
@@ -176,18 +185,18 @@ def guardarPreset(_i):
         if len(escala) > 0: escalaEstado = True
         if len(secuencias) > 0: secuenciasEstado = True
         p = {"preset": i,
-             "escala": (escalaEstado, escala),
-             "secuencias": (secuenciasEstado, secuencias),
-             "tempo": (True, bpm),
-             "probabilidad": (True, probabilidad),
-             "cantVoces": (True, cantVoces),
-             "stepsDiv": (True, stepsDiv),
-             "stepDuracion": (True, stepDuracion),
-             "stepsCant": (True, stepsCant),
-             "probMutacion": (False, probMutacion), # false por defecto, te vuelve medio loco si este valor se propaga en todos los presets
-             "ampOct": (True, ampOct),
-             "velRange": (True, velRange),
-             "delay": (True, delay)}
+             "escala": (escalaEstado, escala), # unico activado por defecto
+             "secuencias": (False, secuencias), 
+             "tempo": (False, bpm), 
+             "probabilidad": (False, probabilidad), 
+             "cantVoces": (False, cantVoces), 
+             "stepsDiv": (False, stepsDiv), 
+             "stepDuracion": (False, stepDuracion), 
+             "stepsCant": (False, stepsCant), 
+             "probMutacion": (False, probMutacion), 
+             "ampOct": (False, ampOct), 
+             "velRange": (False, velRange),
+             "delay": (False, delay)}
 
         presetActual = i
 
@@ -258,8 +267,8 @@ def alternarControlesPreset(k):
                 print("Preset inexistente")
                 return
         
-        #if k == "": l["escala"] = (not l.get("escala")[0], l.get("escala")[1]) #revisar si este metodo es el mejor para asignar un valor en un tuple
-        #if k == "": l["secuencias"] = (not l.get("secuencias")[0], l.get("secuencias")[1])
+        if k == "z": l["escala"] = (not l.get("escala")[0], l.get("escala")[1]) #revisar si este metodo es el mejor para asignar un valor en un tuple
+        if k == "x": l["secuencias"] = (not l.get("secuencias")[0], l.get("secuencias")[1])
         if k == "f1": l["tempo"] = (not l.get("tempo")[0], l.get("tempo")[1])
         if k == "f2": l["probabilidad"] = (not l.get("probabilidad")[0], l.get("probabilidad")[1])
         if k == "f3": l["cantVoces"] = (not l.get("cantVoces")[0], l.get("cantVoces")[1])
@@ -361,6 +370,8 @@ def presionando(key):
                 if key.name == "f12":
                         controlCargarPreset = True
                         controlando = True
+                if key.name == "z" and controlGuardarPreset: alternarControlesPreset(key.name)
+                if key.name == "x" and controlGuardarPreset: alternarControlesPreset(key.name)
 
 def soltando(key):
         global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm, controlProb, controlStepsDiv, controlStepsDur, controlStepsCant, proxStepsCant, stepsCant, controlProbMut, controlAmpOct, controlVelRange, controlDelay, controlGuardarPreset, controlCargarPreset
