@@ -6,7 +6,7 @@ Autor: Andres Chouhy
 
 # Por alguna razon, algunas notas quedan colgadas hasta que se las llama nuevamente, sucede al activar mas de una voz en simultaneo y mas de una octava de amplitud.
 
-print("Pepas MIDI v0.00.005")
+print("Pepas MIDI v0.00.006")
 print("Cargando...")
 
 import curses
