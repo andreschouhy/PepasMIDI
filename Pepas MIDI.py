@@ -6,7 +6,7 @@ Autor: Andres Chouhy
 
 # Por alguna razon, algunas notas quedan colgadas hasta que se las llama nuevamente, sucede al activar mas de una voz en simultaneo y mas de una octava de amplitud.
 
-print("Pepas MIDI v0.00.006")
+print("Pepas MIDI v0.00.007")
 print("Cargando...")
 
 import curses
@@ -145,20 +145,16 @@ def programarOn(nota):
         midiout.send_message([0x90, mapKeyToMIDI(nota[0]) + nota[1]*12, nota[2]])
         
         n = mapKeyToMIDI(nota[0]) + nota[1]*12
-        #notasAApagar.append(n)
+        notasAApagar.append(n)
         t = threading.Timer(60/bpm/stepsDiv*stepDuracion + d, programarOff, [n])
         t.start()
 
 def programarOff(n):
         global notasAApagar
-        
-        notasAApagar.append(n)
-        
-        for i,val in enumerate(notasAApagar):
-                if val == n:
-                        del notasAApagar[i]
-                        return
-        if notasAApagar.count(nota) == 0:
+
+        notasAApagar.remove(n)
+
+        if notasAApagar.count(n) == 0:
                 #noteOff(nota)
                 midiout.send_message([0x80, n, 127])
 
