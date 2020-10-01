@@ -4,9 +4,7 @@ Secuenciador aleatorio de notas musicales
 Autor: Andres Chouhy
 """
 
-# Por alguna razon, algunas notas quedan colgadas hasta que se las llama nuevamente, sucede al activar mas de una voz en simultaneo y mas de una octava de amplitud.
-
-print("Pepas MIDI v0.00.007")
+print("Pepas MIDI v0.00.008")
 print("Cargando...")
 
 import curses
