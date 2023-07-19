@@ -61,13 +61,17 @@ presetActual = 1
 midiout = rtmidi.MidiOut()
 midiin = rtmidi.MidiIn()
 
-available_ports = midiout.get_ports()
+available_ports_out = midiout.get_ports()
+available_ports_in = midiin.get_ports()
 
-if available_ports:
-	midiout.open_port(5)
-	midiin.open_port(6)
+if available_ports_out:
+	midiout.open_port(0)
 else:
 	midiout.open_virtual_port("Pepas MIDI Out")
+
+if available_ports_in:
+	midiin.open_port(0)
+else:
 	midiin.open_virtual_port("Pepas MIDI In")
 
 def mapKeyToMIDI(k):
