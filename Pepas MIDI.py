@@ -59,12 +59,16 @@ presetPath = str(pathlib.Path(__file__).parent.absolute()) + "/presets.txt"
 presetActual = 1
 
 midiout = rtmidi.MidiOut()
+midiin = rtmidi.MidiIn()
+
 available_ports = midiout.get_ports()
 
 if available_ports:
 	midiout.open_port(5)
+	midiin.open_port(6)
 else:
-	midiout.open_virtual_port("Pepas MIDI")
+	midiout.open_virtual_port("Pepas MIDI Out")
+	midiin.open_virtual_port("Pepas MIDI In")
 
 def mapKeyToMIDI(k):
     dic = {
