@@ -103,6 +103,7 @@ def mapKeyToMIDI(k):
         "0": 87,
         "p": 88
         }
+
     return dic.get(k, None)
 
 def mapKeyToNum(k):
@@ -128,6 +129,7 @@ def mapKeyToNum(k):
         "o": 0.8,
         "p": 0.9,
         }
+
     return dic.get(k.name, None)
 
 def noteOn(key):
@@ -190,7 +192,8 @@ def guardarPreset(_i):
     if len(secuencias) > 0: 
         secuenciasEstado = True
 
-    p = {"preset": i,
+    p = {
+        "preset": i,
         "escala": (escalaEstado, escala), # unico activado por defecto
         "secuencias": (False, secuencias), 
         "tempo": (False, bpm), 
@@ -202,7 +205,8 @@ def guardarPreset(_i):
         "probMutacion": (False, probMutacion), 
         "ampOct": (False, ampOct), 
         "velRange": (False, velRange),
-        "delay": (False, delay)}
+        "delay": (False, delay)
+        }
 
     presetActual = i
 
@@ -253,26 +257,37 @@ def cargarPreset(_i):
 
     if p.get("escala")[0] == True: 
         escala = p.get("escala")[1]
+    
     if p.get("secuencias")[0] == True: 
         secuencias = p.get("secuencias")[1]
+    
     if p.get("tempo")[0] == True: 
         bpm = p.get("tempo")[1]
+    
     if p.get("probabilidad")[0] == True: 
         probabilidad = p.get("probabilidad")[1]
+    
     if p.get("cantVoces")[0] == True: 
         proxCantVoces = p.get("cantVoces")[1]
+    
     if p.get("stepsDiv")[0] == True: 
         stepsDiv = p.get("stepsDiv")[1]
+    
     if p.get("stepDuracion")[0] == True: 
         stepDuracion = p.get("stepDuracion")[1]
+    
     if p.get("stepsCant")[0] == True: 
         stepsCant = p.get("stepsCant")[1]
+    
     if p.get("probMutacion")[0] == True: 
         probMutacion = p.get("probMutacion")[1]
+    
     if p.get("ampOct")[0] == True: 
         proxAmpOct = p.get("ampOct")[1]
+    
     if p.get("velRange")[0] == True: 
         velRange = p.get("velRange")[1]
+    
     if p.get("delay")[0] == True: 
         delay = p.get("delay")[1]
 
@@ -305,26 +320,37 @@ def alternarControlesPreset(k):
         
     if k == "z": 
         l["escala"] = (not l.get("escala")[0], l.get("escala")[1]) #revisar si este metodo es el mejor para asignar un valor en un tuple
+    
     if k == "x": 
         l["secuencias"] = (not l.get("secuencias")[0], l.get("secuencias")[1])
+    
     if k == "f1": 
         l["tempo"] = (not l.get("tempo")[0], l.get("tempo")[1])
+    
     if k == "f2": 
         l["probabilidad"] = (not l.get("probabilidad")[0], l.get("probabilidad")[1])
+    
     if k == "f3": 
         l["cantVoces"] = (not l.get("cantVoces")[0], l.get("cantVoces")[1])
+    
     if k == "f4": 
         l["stepsDiv"] = (not l.get("stepsDiv")[0], l.get("stepsDiv")[1])
+    
     if k == "f5": 
         l["stepDuracion"] = (not l.get("stepDuracion")[0], l.get("stepDuracion")[1])
+    
     if k == "f6": 
         l["stepsCant"] = (not l.get("stepsCant")[0], l.get("stepsCant")[1])
+    
     if k == "f7": 
         l["probMutacion"] = (not l.get("probMutacion")[0], l.get("probMutacion")[1])
+    
     if k == "f8": 
         l["ampOct"] = (not l.get("ampOct")[0], l.get("ampOct")[1])
+    
     if k == "f9": 
         l["velRange"] = (not l.get("velRange")[0], l.get("velRange")[1])
+    
     if k == "f10": 
         l["delay"] = (not l.get("delay")[0], l.get("delay")[1])
 
@@ -359,23 +385,31 @@ def presionando(key):
         if mapKeyToNum(key) is not None and controlando == True:
             if controlBPM == True: 
                 proxBPM.append(int(mapKeyToNum(key)%10))
+
             if controlProb == True: 
                 probabilidad = mapKeyToNum(key)/10.0
+            
             if controlCantVoces == True: 
                 proxCantVoces = int(mapKeyToNum(key))
+            
             if controlStepsDiv == True:
                 if mapKeyToNum(key) >= 1.0:
                     stepsDiv = mapKeyToNum(key)
                 else:
                     stepsDiv = 1.0/((mapKeyToNum(key)+0.1)*10.0)
+            
             if controlStepsDur == True: 
                 stepDuracion = mapKeyToNum(key)
+            
             if controlStepsCant == True: 
                 proxStepsCant.append(int(mapKeyToNum(key)%10))
+            
             if controlProbMut == True: 
                 probMutacion = mapKeyToNum(key)/10.0
+            
             if controlAmpOct == True: 
                 proxAmpOct = int(min(mapKeyToNum(key),5))
+            
             if controlVelRange == True:
                 if mapKeyToNum(key) < 1.0:
                     v = int(translate(mapKeyToNum(key), 0.0, 0.9, 1, 127))
@@ -383,10 +417,13 @@ def presionando(key):
                 else:
                     v = int(translate(mapKeyToNum(key), 1.0, 10.0, 1, 127))
                     velRange = (min(velRange[0], v), v)
+            
             if controlDelay == True: 
                 delay = mapKeyToNum(key)/10.0
+            
             if controlGuardarPreset: 
                 guardarPreset(mapKeyToNum(key))
+            
             if controlCargarPreset: 
                 cargarPreset(mapKeyToNum(key))
 
@@ -452,6 +489,7 @@ def presionando(key):
 
         if key.name == "z" and controlGuardarPreset: 
             alternarControlesPreset(key.name)
+
         if key.name == "x" and controlGuardarPreset: 
             alternarControlesPreset(key.name)
 
@@ -627,7 +665,8 @@ while(corriendo==True):
                     midiout.send_message([250])
                     start = False
 
-        if play == True: midiout.send_message([248])
+        if play == True: 
+            midiout.send_message([248])
         tick = tick+1
         tick = tick%(clockDiv/stepsDiv)
         tick = math.floor(tick)
