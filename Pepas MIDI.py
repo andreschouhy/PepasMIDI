@@ -24,7 +24,7 @@ stepDuracion = 1.0 # F5: duracion de la nota relativa a la duracion del step
 stepsCant = 4 # F6: cantidad de steps en las secuencias fijas
 probMutacion = 0.0 # F7: probabilidad de mutacion de secuencias fijas, 0: no muta, 1: muta completamente
 ampOct = 0 # F8: amplitud de octavas, las voces se distribuyen a lo largo de esta cantidad de octavas, valores aceptados 1-5
-velRange = (127,127) # F9: rango de variacion en la intensidad de ejecucion de las notas, valores aceptados 1-127
+velRange = (127, 127) # F9: rango de variacion en la intensidad de ejecucion de las notas, valores aceptados 1-127
 delay = 0.0 # F10: retraso relativo de tiempo entre cada voz, esto genera que 2 o mas notas simultaneas se ejecuten con una minima diferencia de tiempo
 secuenciar = False # BARRA ESPACIADORA: modo secuencia fija
 octava = -2 # FLECHAS ARRIBA Y ABAJO: octava master
@@ -133,20 +133,20 @@ def mapKeyToNum(k):
     return dic.get(k.name, None)
 
 def noteOn(key):
-    midiout.send_message([0x90, mapKeyToMIDI(key[0]) + key[1]*12, key[2]])
+    midiout.send_message([0x90, mapKeyToMIDI(key[0]) + key[1] * 12, key[2]])
 
 def noteOff(key):
-    midiout.send_message([0x80, mapKeyToMIDI(key[0]) + key[1]*12, key[2]])
+    midiout.send_message([0x80, mapKeyToMIDI(key[0]) + key[1] * 12, key[2]])
 
 def programarOn(nota):
     global notasAApagar
         
     #noteOn(nota)
-    midiout.send_message([0x90, mapKeyToMIDI(nota[0]) + nota[1]*12, nota[2]])
+    midiout.send_message([0x90, mapKeyToMIDI(nota[0]) + nota[1] * 12, nota[2]])
         
-    n = mapKeyToMIDI(nota[0]) + nota[1]*12
+    n = mapKeyToMIDI(nota[0]) + nota[1] * 12
     notasAApagar.append(n)
-    t = threading.Timer(60/bpm/stepsDiv*stepDuracion + d, programarOff, [n])
+    t = threading.Timer(60 / bpm / stepsDiv * stepDuracion + d, programarOff, [n])
     t.start()
 
 def programarOff(n):
@@ -182,7 +182,7 @@ def guardarPreset(_i):
     if _i >= 1: 
         i = int(_i)
     else: 
-        i = int(((_i+.1)*10)+10)
+        i = int(((_i + .1) * 10) + 10)
         
     escalaEstado = False
     secuenciasEstado = False
@@ -215,7 +215,7 @@ def guardarPreset(_i):
     if len(lineas) <= i: 
         lineas[-1] += "\n"
 
-    while len(lineas) <= i-1: 
+    while len(lineas) <= i - 1: 
         lineas.append("\n")
 
     if len(lineas) > i: 
@@ -241,7 +241,7 @@ def cargarPreset(_i):
     if _i >= 1: 
         i = int(_i)
     else: 
-        i = int(((_i+.1)*10)+10)
+        i = int(((_i + .1) * 10) + 10)
 
     if len(lineas) > i:
         try: 
@@ -306,11 +306,11 @@ def alternarControlesPreset(k):
     if presetActual >= 1: 
         i = int(presetActual)
     else: 
-        i = int(((presetActual+.1)*10)+10)
+        i = int(((presetActual + .1) * 10) + 10)
 
     if len(lineas) > i:
         try: 
-            l = eval(lineas[i-1])
+            l = eval(lineas[i - 1])
         except:
             print("Preset invalido")
             return
@@ -358,13 +358,13 @@ def alternarControlesPreset(k):
     if len(lineas) <= i: 
         lineas[-1] += "\n"
 
-    while len(lineas) <= i-1: 
+    while len(lineas) <= i - 1: 
         lineas.append("\n")
 
     if len(lineas) > i: 
         l += "\n"
 
-    lineas[i-1] = l
+    lineas[i - 1] = l
     presetFile = open(presetPath, "w")
     presetFile.writelines(lineas)
     presetFile.close()
@@ -376,108 +376,133 @@ def presionando(key):
     if key.name not in presionadas:
         presionadas.append(key.name)
 
+        keyNum = mapKeyToNum(key)
+
         if mapKeyToMIDI(key.name) is not None and controlando == False:
             if ((holdMode == True) and (len(presionadas) == 1)):
                 global escala
                 escala.clear()
+            
             escala.append(key.name)
 
-        if mapKeyToNum(key) is not None and controlando == True:
+        if keyNum is not None and controlando == True:
             if controlBPM == True: 
-                proxBPM.append(int(mapKeyToNum(key)%10))
+                proxBPM.append(int(keyNum % 10))
 
             if controlProb == True: 
-                probabilidad = mapKeyToNum(key)/10.0
+                probabilidad = keyNum / 10.0
             
             if controlCantVoces == True: 
-                proxCantVoces = int(mapKeyToNum(key))
+                proxCantVoces = int(keyNum)
             
             if controlStepsDiv == True:
-                if mapKeyToNum(key) >= 1.0:
-                    stepsDiv = mapKeyToNum(key)
+                if keyNum >= 1.0:
+                    stepsDiv = keyNum
                 else:
-                    stepsDiv = 1.0/((mapKeyToNum(key)+0.1)*10.0)
+                    stepsDiv = 1.0 / ((keyNum + 0.1) * 10.0)
             
             if controlStepsDur == True: 
-                stepDuracion = mapKeyToNum(key)
+                stepDuracion = keyNum
             
             if controlStepsCant == True: 
-                proxStepsCant.append(int(mapKeyToNum(key)%10))
+                proxStepsCant.append(int(keyNum % 10))
             
             if controlProbMut == True: 
-                probMutacion = mapKeyToNum(key)/10.0
+                probMutacion = keyNum / 10.0
             
             if controlAmpOct == True: 
-                proxAmpOct = int(min(mapKeyToNum(key),5))
+                proxAmpOct = int(min(keyNum, 5))
             
             if controlVelRange == True:
-                if mapKeyToNum(key) < 1.0:
-                    v = int(translate(mapKeyToNum(key), 0.0, 0.9, 1, 127))
+                if keyNum < 1.0:
+                    v = int(translate(keyNum, 0.0, 0.9, 1, 127))
                     velRange = (v, max(velRange[1], v))
                 else:
-                    v = int(translate(mapKeyToNum(key), 1.0, 10.0, 1, 127))
+                    v = int(translate(keyNum, 1.0, 10.0, 1, 127))
                     velRange = (min(velRange[0], v), v)
             
             if controlDelay == True: 
-                delay = mapKeyToNum(key)/10.0
+                delay = keyNum / 10.0
             
             if controlGuardarPreset: 
-                guardarPreset(mapKeyToNum(key))
+                guardarPreset(keyNum)
             
             if controlCargarPreset: 
-                cargarPreset(mapKeyToNum(key))
+                cargarPreset(keyNum)
+        
+        alternarControlesPresetKeyName = alternarControlesPreset(key.name)
 
         if key.name == "f1":
             proxBPM = []
             controlBPM = True
             controlando = True
-            if controlGuardarPreset: alternarControlesPreset(key.name)
+
+            if controlGuardarPreset: 
+                alternarControlesPresetKeyName
 
         if key.name == "f2":
             controlProb = True
             controlando = True
-            if controlGuardarPreset: alternarControlesPreset(key.name)
+
+            if controlGuardarPreset: 
+                alternarControlesPresetKeyName
 
         if key.name == "f3":
             controlCantVoces = True
             controlando = True
-            if controlGuardarPreset: alternarControlesPreset(key.name)
+
+            if controlGuardarPreset: 
+                alternarControlesPresetKeyName
 
         if key.name == "f4":
             controlStepsDiv = True
             controlando = True
-            if controlGuardarPreset: alternarControlesPreset(key.name)
+
+            if controlGuardarPreset: 
+                alternarControlesPresetKeyName
 
         if key.name == "f5":
             controlStepsDur = True
             controlando = True
-            if controlGuardarPreset: alternarControlesPreset(key.name)
+
+            if controlGuardarPreset: 
+                alternarControlesPresetKeyName
 
         if key.name == "f6":
             proxStepsCant = []
             controlStepsCant = True
             controlando = True
-            if controlGuardarPreset: alternarControlesPreset(key.name)
+
+            if controlGuardarPreset: 
+                alternarControlesPresetKeyName
 
         if key.name == "f7":
             controlProbMut = True
             controlando = True
-            if controlGuardarPreset: alternarControlesPreset(key.name)
+
+            if controlGuardarPreset: 
+                alternarControlesPresetKeyName
 
         if key.name == "f8":
             controlAmpOct = True
             controlando = True
-            if controlGuardarPreset: alternarControlesPreset(key.name)
+
+            if controlGuardarPreset: 
+                alternarControlesPresetKeyName
 
         if key.name == "f9":
             controlVelRange = True
             controlando = True
-            if controlGuardarPreset: alternarControlesPreset(key.name)
+
+            if controlGuardarPreset: 
+                alternarControlesPresetKeyName
 
         if key.name == "f10":
             controlDelay = True
             controlando = True
-            if controlGuardarPreset: alternarControlesPreset(key.name)
+
+            if controlGuardarPreset: 
+                alternarControlesPresetKeyName
 
         if key.name == "f11":
             controlGuardarPreset = True
@@ -488,10 +513,10 @@ def presionando(key):
             controlando = True
 
         if key.name == "z" and controlGuardarPreset: 
-            alternarControlesPreset(key.name)
+            alternarControlesPresetKeyName
 
         if key.name == "x" and controlGuardarPreset: 
-            alternarControlesPreset(key.name)
+            alternarControlesPresetKeyName
 
 def soltando(key):
     global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm, controlProb, controlStepsDiv, controlStepsDur, controlStepsCant, proxStepsCant, stepsCant, controlProbMut, controlAmpOct, controlVelRange, controlDelay, controlGuardarPreset, controlCargarPreset
@@ -572,6 +597,7 @@ def salir(k):
 def toggleHold(k):
     global holdMode
     holdMode = not holdMode
+    
     if holdMode == False:
         global escala
         escala.clear()
@@ -586,23 +612,31 @@ def resetearSecuencia(k):
     global secuencias, stepActual
     stepActual = 0
     secuencias.clear()
+
     for v in range(maxVoces):
         secuencias.append(list())
         for i in range(stepsCant):
-            if random.random() <= probabilidad: s = True
-            else: s = False
-            secuencias[v].append(((random.randint(0, 256)), s, random.randint(velRange[0],velRange[1])))
+            if random.random() <= probabilidad: 
+                s = True
+            else: 
+                s = False
+
+            secuencias[v].append(((random.randint(0, 256)), s, random.randint(velRange[0], velRange[1])))
 
 def mutar(step):
     if random.random() <= probMutacion:
         for v in range(maxVoces):
-            if random.random() <= probabilidad: s = True
-            else: s = False
+            if random.random() <= probabilidad: 
+                s = True
+            else: 
+                s = False
+            
             sec = secuencias[v]
-            sec[step%len(sec)] = ((random.randint(0, 256)), s, random.randint(velRange[0],velRange[1]))
+            sec[step%len(sec)] = ((random.randint(0, 256)), s, random.randint(velRange[0], velRange[1]))
 
 def startStopClock(k):
     global start, play
+
     if play == False:
         start = True
         play = True
@@ -634,23 +668,23 @@ while(corriendo==True):
     cantVoces = proxCantVoces
     ampOct = proxAmpOct
     tiempoTemp = tiempo
-    tiempo = time.time() % (60/bpm/clockDiv)
+    tiempo = time.time() % (60 / bpm / clockDiv)
 
     if tiempo < tiempoTemp:
         if len(escala) > 0 and tick == 0:
             for i in range(cantVoces):
                 if secuenciar:
-                    s = secuencias[i%len(secuencias)]
-                    if s[stepActual%len(s)][1] == True:
-                        n = s[stepActual%len(s)][0]
-                        nota = (escala[n % len(escala)], octava + int(ampOct / cantVoces * i), s[stepActual%len(s)][2])
-                        d = 60/bpm/stepsDiv*delay/cantVoces*i
+                    s = secuencias[i % len(secuencias)]
+                    if s[stepActual % len(s)][1] == True:
+                        n = s[stepActual % len(s)][0]
+                        nota = (escala[n % len(escala)], octava + int(ampOct / cantVoces * i), s[stepActual % len(s)][2])
+                        d = 60 / bpm / stepsDiv * delay / cantVoces * i
                         t = threading.Timer(d, programarOn, [nota])
                         t.start()
                 else:
                     if random.random() <= probabilidad:
-                        nota = (escala[random.randint(0,len(escala)-1)], octava  + int(ampOct / cantVoces * i), random.randint(velRange[0],velRange[1]))
-                        d = 60/bpm/stepsDiv*delay/cantVoces*i
+                        nota = (escala[random.randint(0, len(escala) - 1)], octava + int(ampOct / cantVoces * i), random.randint(velRange[0], velRange[1]))
+                        d = 60 / bpm / stepsDiv * delay / cantVoces * i
                         t = threading.Timer(d, programarOn, [nota])
                         t.start()
 
@@ -667,8 +701,9 @@ while(corriendo==True):
 
         if play == True: 
             midiout.send_message([248])
-        tick = tick+1
-        tick = tick%(clockDiv/stepsDiv)
+
+        tick = tick + 1
+        tick = tick % (clockDiv / stepsDiv)
         tick = math.floor(tick)
 
 midiout.send_message([252])
