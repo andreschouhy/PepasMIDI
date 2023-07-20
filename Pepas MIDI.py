@@ -674,7 +674,7 @@ tiempoTemp = 0
 tick = 0
 resetearSecuencia(None)
 
-while(corriendo==True):
+while (corriendo == True):
     cantVoces = proxCantVoces
     ampOct = proxAmpOct
     tiempoTemp = tiempo
