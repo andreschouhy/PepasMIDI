@@ -665,7 +665,6 @@ def startStopClock(k):
         play = False
 
 notasPresionadas = []
-
 def processMidiMessage(m):
     if m[0][0] == 144:
         #presionando(m[0][1])
