@@ -664,12 +664,29 @@ def startStopClock(k):
         midiout.send_message([252])
         play = False
 
+notasPresionadas = []
+
 def processMidiMessage(m):
     if m[0][0] == 144:
         #presionando(m[0][1])
+        nota = m[0][1]
+        notasPresionadas.append(nota)
+
+        if ((holdMode == True) and (len(notasPresionadas) == 1)):
+                global escala
+                escala.clear()
+
+        escala.append(nota)
     
     if m[0][0] == 128:
         #soltando(m[0][1])
+        nota = m[0][1]
+        notasPresionadas.remove(nota)
+
+        if not holdMode:
+            for i in escala:
+                if i == nota: 
+                    escala.remove(nota)
 
 keyboard.on_press(processKeyboardPress, suppress=False)
 keyboard.on_release(processKeyboardRelease, suppress=True)
