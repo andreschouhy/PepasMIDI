@@ -142,19 +142,21 @@ def mapKeyToNum(k):
 
     return dic.get(k.name, None)
 
-def noteOn(key):
-    midiout.send_message([0x90, mapKeyToMIDI(key[0]) + key[1] * 12, key[2]])
+#def noteOn(key):
+#    midiout.send_message([0x90, mapKeyToMIDI(key[0]) + key[1] * 12, key[2]])
 
-def noteOff(key):
-    midiout.send_message([0x80, mapKeyToMIDI(key[0]) + key[1] * 12, key[2]])
+#def noteOff(key):
+#    midiout.send_message([0x80, mapKeyToMIDI(key[0]) + key[1] * 12, key[2]])
 
 def programarOn(nota):
     global notasAApagar
-        
+    
     #noteOn(nota)
-    midiout.send_message([0x90, mapKeyToMIDI(nota[0]) + nota[1] * 12, nota[2]])
+    #midiout.send_message([0x90, mapKeyToMIDI(nota[0]) + nota[1] * 12, nota[2]])
+    midiout.send_message([0x90, nota[0] + nota[1] * 12, nota[2]])
         
-    n = mapKeyToMIDI(nota[0]) + nota[1] * 12
+    #n = mapKeyToMIDI(nota[0]) + nota[1] * 12
+    n = nota[0] + nota[1] * 12
     notasAApagar.append(n)
     t = threading.Timer(60 / bpm / stepsDiv * stepDuracion + d, programarOff, [n])
     t.start()
@@ -231,7 +233,7 @@ def guardarPreset(_i):
     if len(lineas) > i: 
         p += "\n"
 
-    lineas[i-1] = p
+    lineas[i - 1] = p
     presetFile = open(presetPath, "w")
     presetFile.writelines(lineas)
     presetFile.close()
@@ -380,20 +382,23 @@ def alternarControlesPreset(k):
     presetFile.close()
 
 presionadas = []
-def presionando(key):
+def processKeyboardPress(key):
     global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm, controlProb, probabilidad, controlStepsDiv, stepsDiv, controlStepsDur, stepDuracion, controlStepsCant, stepsCant, proxStepsCant, controlProbMut, probMutacion, controlAmpOct, proxAmpOct, controlVelRange, velRange, controlDelay, delay, controlGuardarPreset, controlCargarPreset
     
     if key.name not in presionadas:
         presionadas.append(key.name)
 
-        keyNum = mapKeyToNum(key)
+        keyMIDI = mapKeyToMIDI(key.name)
 
-        if mapKeyToMIDI(key.name) is not None and controlando == False:
+        if keyMIDI is not None and controlando == False:
             if ((holdMode == True) and (len(presionadas) == 1)):
                 global escala
                 escala.clear()
             
-            escala.append(key.name)
+            #escala.append(key.name)
+            escala.append(keyMIDI)
+
+        keyNum = mapKeyToNum(key)
 
         if keyNum is not None and controlando == True:
             if controlBPM == True: 
@@ -528,16 +533,21 @@ def presionando(key):
         if key.name == "x" and controlGuardarPreset: 
             alternarControlesPresetKeyName
 
-def soltando(key):
+def processKeyboardRelease(key):
     global controlando, controlCantVoces, cantVoces, proxCantVoces, controlBPM, proxBPM, bpm, controlProb, controlStepsDiv, controlStepsDur, controlStepsCant, proxStepsCant, stepsCant, controlProbMut, controlAmpOct, controlVelRange, controlDelay, controlGuardarPreset, controlCargarPreset
         
     if key.name in presionadas:
         presionadas.remove(key.name)
 
-        if mapKeyToMIDI(key.name) and controlando == False:
+        keyMIDI = mapKeyToMIDI(key.name)
+
+        if keyMIDI and controlando == False:
             if not holdMode:
                 for i in escala:
-                    if i == key.name: escala.remove(key.name)
+                    #if i == key.name: 
+                    if i == keyMIDI: 
+                        #escala.remove(key.name)
+                        escala.remove(keyMIDI)
 
         if key.name == "f1":
             b = sum(d * 10**i for i, d in enumerate(proxBPM[::-1]))
@@ -654,15 +664,15 @@ def startStopClock(k):
         midiout.send_message([252])
         play = False
 
-def interpretMidiMessage(m):
+def processMidiMessage(m):
     if m[0][0] == 144:
         #presionando(m[0][1])
     
     if m[0][0] == 128:
         #soltando(m[0][1])
 
-keyboard.on_press(presionando, suppress=False)
-keyboard.on_release(soltando, suppress=True)
+keyboard.on_press(processKeyboardPress, suppress=False)
+keyboard.on_release(processKeyboardRelease, suppress=True)
 keyboard.on_press_key('esc', salir, suppress=True)
 keyboard.on_press_key('up', octavaSubir, suppress=True)
 keyboard.on_press_key('down', octavaBajar, suppress=True)
@@ -688,10 +698,10 @@ while (corriendo == True):
     tiempo = time.time() % (60 / bpm / clockDiv)
 
     mensajesDisponibles = True
-    while (mensajesDisponibles):
+    while mensajesDisponibles:
         m = midiin.get_message()
         if m != None:
-            interpretMidiMessage(m)
+            processMidiMessage(m)
         else:
             mensajesDisponibles = False
 
