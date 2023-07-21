@@ -4,7 +4,7 @@ Secuenciador aleatorio de notas musicales
 Autor: Andres Chouhy
 """
 
-print("Pepas MIDI v0.00.008")
+print("Pepas MIDI v0.00.009")
 print("Cargando...")
 
 import curses
@@ -24,7 +24,7 @@ stepDuracion = 1.0 # F5: duracion de la nota relativa a la duracion del step
 stepsCant = 4 # F6: cantidad de steps en las secuencias fijas
 probMutacion = 0.0 # F7: probabilidad de mutacion de secuencias fijas, 0: no muta, 1: muta completamente
 ampOct = 0 # F8: amplitud de octavas, las voces se distribuyen a lo largo de esta cantidad de octavas, valores aceptados 1-5
-velRange = (127, 127) # F9: rango de variacion en la intensidad de ejecucion de las notas, valores aceptados 1-127
+velRange = (64, 64) # F9: rango de variacion en la intensidad de ejecucion de las notas, valores aceptados 1-127
 delay = 0.0 # F10: retraso relativo de tiempo entre cada voz, esto genera que 2 o mas notas simultaneas se ejecuten con una minima diferencia de tiempo
 secuenciar = False # BARRA ESPACIADORA: modo secuencia fija
 octava = -2 # FLECHAS ARRIBA Y ABAJO: octava master
@@ -654,6 +654,13 @@ def startStopClock(k):
         midiout.send_message([252])
         play = False
 
+def interpretMidiMessage(m):
+    if m[0][0] == 144:
+        #presionando(m[0][1])
+    
+    if m[0][0] == 128:
+        #soltando(m[0][1])
+
 keyboard.on_press(presionando, suppress=False)
 keyboard.on_release(soltando, suppress=True)
 keyboard.on_press_key('esc', salir, suppress=True)
@@ -679,6 +686,14 @@ while (corriendo == True):
     ampOct = proxAmpOct
     tiempoTemp = tiempo
     tiempo = time.time() % (60 / bpm / clockDiv)
+
+    mensajesDisponibles = True
+    while (mensajesDisponibles):
+        m = midiin.get_message()
+        if m != None:
+            interpretMidiMessage(m)
+        else:
+            mensajesDisponibles = False
 
     if tiempo < tiempoTemp:
         if len(escala) > 0 and tick == 0:
