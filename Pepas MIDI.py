@@ -27,7 +27,7 @@ ampOct = 0 # F8: amplitud de octavas, las voces se distribuyen a lo largo de est
 velRange = (64, 64) # F9: rango de variacion en la intensidad de ejecucion de las notas, valores aceptados 1-127
 delay = 0.0 # F10: retraso relativo de tiempo entre cada voz, esto genera que 2 o mas notas simultaneas se ejecuten con una minima diferencia de tiempo
 secuenciar = False # BARRA ESPACIADORA: modo secuencia fija
-octava = -2 # FLECHAS ARRIBA Y ABAJO: octava master
+octava = 0 # FLECHAS ARRIBA Y ABAJO: octava master
 
 notasAApagar = []
 escala = []
