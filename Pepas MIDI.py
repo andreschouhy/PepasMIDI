@@ -4,7 +4,7 @@ Secuenciador aleatorio de notas musicales
 Autor: Andres Chouhy
 """
 
-print("Pepas MIDI v0.00.009")
+print("Pepas MIDI v0.00.010")
 print("Cargando...")
 
 import curses
@@ -698,6 +698,23 @@ keyboard.on_press_key('backspace', resetearSecuencia, suppress=True)
 keyboard.on_press_key('enter', startStopClock, suppress=True)
 
 print("Arrancamo!")
+print("COMANDOS:")
+print("` : Alternar Modo Mantener")
+print("ESPACIO : Alternar Modo Aleatorio/Secuencia")
+print("BORRAR : Reiniciar secuencia")
+print("F1 : Tempo (BPM)")
+print("F2 : Probabilidad")
+print("F3 : Cantidad de voces")
+print("F4 : Steps")
+print("F5 : Duracion de la nota")
+print("F6 : Cantidad de steps en secuencias")
+print("F7 : Probabilidad de mutacion")
+print("F8 : Amplitud de octavas")
+print("F9 : Rango de intensidades")
+print("F10 : Retraso entre voces")
+print("F11 : Guardar preset")
+print("F12 : Cargar preset")
+
 stdscr = curses.initscr()
 curses.noecho()
 curses.cbreak()
